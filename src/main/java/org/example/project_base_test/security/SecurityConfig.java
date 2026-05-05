@@ -29,16 +29,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity security) throws Exception {
         return security
-                .cors(cf -> cf.configurationSource(request ->
-                {
-                    CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://localhost:5173/","http://localhost:5174/","http://localhost:5175/")); // phụ thuộc vào port clents
-                    config.setAllowedMethods(List.of("*"));
-                    config.setAllowCredentials(true);
-                    config.setAllowedHeaders(List.of("*"));
-                    config.setExposedHeaders(List.of("*"));
-                    return config;
-                }))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> {
                    // viết cấu hình các đường dẫn ở đây
