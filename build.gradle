@@ -1,7 +1,10 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '4.0.6'
-    id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.springframework.boot' version '3.3.4' // Hạ từ 4.0.5 xuống 3.3.4
+    id 'io.spring.dependency-management' version '1.1.6' // Đồng bộ bản dependency
+}
+ext {
+    springCloudVersion = "2025.1.1"
 }
 
 group = 'org.example'
@@ -24,6 +27,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'
@@ -41,6 +46,23 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
     // Source: https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
+    // Thêm dòng này để kích hoạt AOP (Aspect Oriented Programming)
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    // redis cần thư viện này để lưu dữ liệu
+    // Spring Data Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.17.0'
+
+
+
+    // Cần thiết để Redis có thể hiểu được các cấu trúc dữ liệu phức tạp (như UserPrinciple)
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+}
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion"
+    }
 }
 
 tasks.named('test') {

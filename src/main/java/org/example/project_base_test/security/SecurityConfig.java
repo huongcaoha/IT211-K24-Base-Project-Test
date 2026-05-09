@@ -32,7 +32,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> {
                    // viết cấu hình các đường dẫn ở đây
-
+                    auth.requestMatchers("/api/v1/auth/**").permitAll();
+                    auth.requestMatchers("/api/v1/admin/**").hasRole("ADMIN");
+                    auth.requestMatchers("/api/v1/user/**").hasRole("USER");
+                    auth.anyRequest().authenticated();
 
                 }).sessionManagement(auth -> auth.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(auth -> auth.authenticationEntryPoint(jwtEntrypoint))

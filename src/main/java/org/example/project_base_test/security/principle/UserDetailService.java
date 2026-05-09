@@ -1,14 +1,20 @@
 package org.example.project_base_test.security.principle;
 
+import org.example.project_base_test.model.entity.Permission;
+import org.example.project_base_test.model.entity.Role;
 import org.example.project_base_test.model.entity.User;
 import org.example.project_base_test.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -22,12 +28,25 @@ public class UserDetailService implements UserDetailsService {
     }
 
     @Override
+    @Cacheable(cacheNames = "users",key = "#username")
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findUsersByUsername(username);
-        SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority("ROLE_"+user.getRole());
-        UserPrinciple userPrinciple = new UserPrinciple();
-        userPrinciple.setUser(user);
-        userPrinciple.setAuthorities(List.of(simpleGrantedAuthority));
-        return userPrinciple;
+        if (user == null) {
+            throw new UsernameNotFoundException("User " + username + " not found!");
+        }
+        Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+        for (Role role : user.getRoles()) {
+            grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRoleName()));
+            if (role.getPermissions() != null) {
+                for (Permission permission : role.getPermissions()) {
+                    grantedAuthorities.add(new SimpleGrantedAuthority(permission.getPermissionName()));
+                }
+            }
+        }
+        return UserPrinciple
+                .builder()
+                .user(user)
+                .authorities(grantedAuthorities)
+                .build();
     }
 }
