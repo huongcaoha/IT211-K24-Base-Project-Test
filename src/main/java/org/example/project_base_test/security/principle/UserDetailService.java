@@ -28,11 +28,11 @@ public class UserDetailService implements UserDetailsService {
     }
 
     @Override
-    @Cacheable(cacheNames = "users",key = "#username")
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findUsersByUsername(username);
+    @Cacheable(cacheNames = "users",key = "#email")
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new UsernameNotFoundException("User " + username + " not found!");
+            throw new UsernameNotFoundException("User " + email + " not found!");
         }
         Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
         for (Role role : user.getRoles()) {
